@@ -1,56 +1,137 @@
 <script>
-	import Header from './Header.svelte';
+	import { goto, invalidateAll } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import ToastViewport from '$lib/components/toast-viewport.svelte';
+	import Button from '$lib/components/ui/button.svelte';
+	import Card from '$lib/components/ui/card.svelte';
+	import PromptModal from '$lib/components/ui/prompt-modal.svelte';
+	import { getErrorMessage } from '$lib/errors';
+	import { createProject } from '$lib/task-api';
+	import { toast } from '$lib/toast.svelte';
+	import { Plus } from '@lucide/svelte';
 	import './layout.css';
 
-	let { children } = $props();
-</script>
+	let { data, children } = $props();
 
-<div class="app">
-	<Header />
-	<main>{@render children()}</main>
+	let addListOpen = $state(false);
+	let newListName = $state('');
+	let createListPending = $state(false);
+	let createListError = $state('');
 
-	<footer>
-		<p>
-			visit
-			<a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a>
-			to learn about SvelteKit
-		</p>
-	</footer>
-</div>
-
-<style>
-	.app {
-		display: flex;
-		flex-direction: column;
-		min-height: 100vh;
+	function openAddListModal() {
+		newListName = '';
+		createListError = '';
+		addListOpen = true;
 	}
 
-	main {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		padding: 1rem;
-		width: 100%;
-		max-width: 64rem;
-		margin: 0 auto;
-		box-sizing: border-box;
+	function closeAddListModal() {
+		addListOpen = false;
+		createListError = '';
 	}
 
-	footer {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		padding: 12px;
-	}
+	async function submitNewList() {
+		const name = newListName.trim();
+		if (!name) {
+			createListError = 'Podaj nazwę listy.';
+			return;
+		}
 
-	footer a {
-		font-weight: bold;
-	}
+		createListPending = true;
+		createListError = '';
 
-	@media (min-width: 480px) {
-		footer {
-			padding: 12px 0;
+		try {
+			const project = await createProject({ name });
+			const id = project?.id;
+			if (id == null) {
+				throw new Error('API nie zwróciło identyfikatora nowej listy.');
+			}
+
+			closeAddListModal();
+			await invalidateAll();
+
+			toast({
+				title: 'Dodano listę',
+				description: `Lista „${name}” jest gotowa do użycia.`,
+				variant: 'success'
+			});
+
+			await goto(resolve(`/${String(id)}`));
+		} catch (error) {
+			createListError = getErrorMessage(error);
+		} finally {
+			createListPending = false;
 		}
 	}
-</style>
+</script>
+
+<div class="min-h-screen bg-background text-foreground">
+	<div class="mx-auto flex w-full max-w-368 gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+		<aside class="w-full shrink-0 lg:w-72">
+			<Card class="p-4">
+				<div class="space-y-4">
+					<div class="space-y-1">
+						<a
+							href={resolve('/uzytkownicy')}
+							class={`block rounded-md px-3 py-2 text-sm transition ${
+								page.route.id === '/uzytkownicy'
+									? 'bg-primary/10 font-semibold text-primary'
+									: 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+							}`}
+						>
+							Użytkownicy
+						</a>
+						<hr />
+						<a
+							href={resolve('/')}
+							class="block rounded-md px-3 py-2 text-sm font-semibold hover:bg-muted/60"
+						>
+							Listy zadań
+						</a>
+					</div>
+					<nav class="space-y-1">
+						{#if data.projects?.length}
+							{#each data.projects as project (project.id)}
+								<a
+									href={resolve(`/${String(project.id)}`)}
+									class={`block rounded-md px-3 py-2 text-sm transition ${
+										page.params.id === String(project.id)
+											? 'bg-primary/10 font-semibold text-primary'
+											: 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+									}`}
+								>
+									{project.name}
+								</a>
+							{/each}
+						{:else}
+							<p class="px-3 py-2 text-sm text-muted-foreground">Brak dostępnych list zadań.</p>
+						{/if}
+					</nav>
+					<Button variant="outline" class="w-full justify-center" onclick={openAddListModal}>
+						<Plus class="size-4" />
+						Dodaj listę
+					</Button>
+				</div>
+			</Card>
+		</aside>
+		<main class="min-w-0 flex-1">
+			{@render children()}
+		</main>
+	</div>
+</div>
+
+<PromptModal
+	open={addListOpen}
+	title="Nowa lista zadań"
+	description="Nadaj krótką nazwę, aby odróżnić tę listę w panelu bocznym."
+	fieldLabel="Nazwa listy"
+	placeholder="Np. Produkt, Marketing, Dom"
+	submitLabel="Utwórz listę"
+	bind:value={newListName}
+	pending={createListPending}
+	error={createListError}
+	onClose={closeAddListModal}
+	onSubmit={submitNewList}
+/>
+
+<ToastViewport />

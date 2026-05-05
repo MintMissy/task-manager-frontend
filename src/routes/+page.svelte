@@ -1,60 +1,43 @@
 <script>
-	import welcomeFallback from '$lib/images/svelte-welcome.png';
-	import welcome from '$lib/images/svelte-welcome.webp';
+	import { resolve } from '$app/paths';
+	import Card from '$lib/components/ui/card.svelte';
 
-	import Counter from './Counter.svelte';
+	let { data } = $props();
 </script>
 
 <svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<title>Wybierz listę zadań</title>
+	<meta
+		name="description"
+		content="Wybierz listę zadań z paska bocznego lub z poniższych kart, aby otworzyć panel."
+	/>
 </svelte:head>
 
-<section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcomeFallback} alt="Welcome" />
-			</picture>
-		</span>
+<section class="space-y-6">
+	<div>
+		<h1 class="mt-2 text-3xl font-semibold">Wybierz listę zadań</h1>
+		<p class="mt-3 text-sm text-muted-foreground">
+			Wybierz listę z paska bocznego lub jedną z poniższych kart, aby otworzyć panel zadań.
+		</p>
+	</div>
 
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
-
-	<Counter />
+	{#if data.projects?.length}
+		<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+			{#each data.projects as project (project.id)}
+				<a href={resolve('/[id]', { id: String(project.id) })} class="block">
+					<Card class="h-full p-5 transition hover:border-primary/40 hover:bg-primary/5">
+						<p class="text-sm text-muted-foreground">Lista zadań</p>
+						<h2 class="mt-2 text-lg font-semibold">{project.name}</h2>
+					</Card>
+				</a>
+			{/each}
+		</div>
+	{:else}
+		<Card class="p-6">
+			<h2 class="text-xl font-semibold">Brak list zadań</h2>
+			<p class="mt-2 text-sm text-muted-foreground">
+				Backend nie zwrócił żadnych projektów, więc nie ma jeszcze list zadań do wyświetlenia.
+			</p>
+		</Card>
+	{/if}
 </section>
-
-<style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
-	}
-
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
-</style>

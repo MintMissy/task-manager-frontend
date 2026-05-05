@@ -1,90 +1,35 @@
 # Task Manager Frontend
 
-SvelteKit frontend for the task manager backend API. The app ships a dashboard-oriented UI that loads tasks, users, and projects from the Express backend and exposes task CRUD flows through a shadcn-svelte-inspired component layer.
+SvelteKit 5 app. Shared primitives: `src/lib/components/ui/`. Route-scoped UI: `src/routes/.../_components/`.
 
-## Features
+## Scope
 
-- Dashboard landing page with KPI cards for total, todo, in progress, and done tasks
-- Filterable task workspace with search, status, project, and assignee filters
-- Dual task presentation modes: list view and status-board view
-- Create and edit task modal mapped to the backend task payload
-- Delete confirmation flow with toast feedback
-- Project and assignee side summaries for quick filtering
-- Loading skeletons, empty states, and backend error handling
+- **`/`** — project picker; sidebar lists projects + “Dodaj listę”.
+- **`/:id`** — single-project task workspace: toolbar, `q` + `assignee` URL params (shareable), list/Kanban, task CRUD (modals, confirm, toasts).
+- **`/uzytkownicy`** — users table; view/create/edit/delete modals.
 
-## Backend Contract
+States: skeletons, empty, no-results, error + retry. Task rows use API-joined fields (`assigned_user_name`, `project_name`).
 
-The frontend expects the backend API to expose:
-
-- `GET /tasks`
-- `POST /tasks`
-- `PUT /tasks/:id`
-- `DELETE /tasks/:id`
-- `GET /users`
-- `GET /projects`
-
-Default API base URL:
-
-```text
-http://localhost:3000
-```
-
-You can override it with:
-
-```text
-PUBLIC_API_BASE_URL=http://localhost:3000
-```
-
-## Local Setup
-
-Install dependencies:
+## Local setup
 
 ```bash
 pnpm install
-```
-
-Create a local env file:
-
-```bash
 cp .env.example .env
-```
-
-Start the frontend:
-
-```bash
 pnpm dev
 ```
 
-The backend should be running separately in the task manager backend project.
+Set `PUBLIC_API_BASE_URL` (default in `.env.example`: `http://localhost:3000`) to a running API instance.
 
-## Scripts
+## Project layout
 
-- `pnpm dev` starts the local dev server
-- `pnpm build` creates the production build
-- `pnpm preview` previews the production build
-- `pnpm lint` runs Prettier and ESLint
-- `pnpm format` formats the repository
-
-## UI Structure
-
-Main route:
-
-- `/` renders the task dashboard
-
-Primary UI sections:
-
-- hero header with refresh and create actions
-- KPI summary cards
-- filter bar and list/board toggle
-- task list or Kanban-style status board
-- project and assignee summary panels
-
-## Notes
-
-- The frontend reads from the joined task payload returned by `GET /tasks`, including `assigned_user_name` and `project_name`.
-- Create and update actions refresh the task collection after success so the joined display fields stay accurate.
-- Status handling is intentionally limited to the backend values: `todo`, `in_progress`, and `done`.
-
-## Implementation Reference
-
-Detailed frontend implementation notes live in [ui-implementation-plan.md](./ui-implementation-plan.md).
+| Path                                      | Role                                          |
+| ----------------------------------------- | --------------------------------------------- |
+| `src/routes/+layout.svelte`               | Shell: sidebar, new-list flow, toast viewport |
+| `src/routes/+layout.js`                   | Loads tasks, users, projects                  |
+| `src/routes/+page.svelte`                 | Home / project selection                      |
+| `src/routes/[id]/+page.svelte`            | Task dashboard                                |
+| `src/routes/[id]/_components/`            | Task-only components                          |
+| `src/routes/uzytkownicy/`                 | Users page + `_components/`                   |
+| `src/lib/components/ui/`                  | Shared UI primitives                          |
+| `src/lib/task-api.js`                     | HTTP client                                   |
+| `src/lib/task-status.js`, `task-dates.js` | Status labels, dates                          |

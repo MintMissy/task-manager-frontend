@@ -7,10 +7,11 @@
 	import Card from '$lib/components/ui/card.svelte';
 	import PromptModal from '$lib/components/ui/prompt-modal.svelte';
 	import { getErrorMessage } from '$lib/errors';
-	import { createProject } from '$lib/task-api';
 	import { toast } from '$lib/toast.svelte';
 	import { Plus } from '@lucide/svelte';
 	import './layout.css';
+	//import { createProject } from '$lib/task-api';
+	import { fetchDashboardData, createProject, deleteProject } from '$lib/task-api';
 
 	let { data, children } = $props();
 
@@ -63,6 +64,37 @@
 			createListPending = false;
 		}
 	}
+
+	async function handleDeleteProject(event, projectId, projectName) {
+	event.preventDefault();
+	event.stopPropagation();
+
+	const confirmed = confirm(`Czy na pewno usunąć listę "${projectName}"?`);
+	if (!confirmed) return;
+
+	try {
+		await deleteProject(projectId);
+
+		toast({
+			title: 'Usunięto listę',
+			description: `Lista „${projectName}” została usunięta.`,
+			variant: 'success'
+		});
+
+		await invalidateAll();
+
+		if (page.params.id === String(projectId)) {
+			await goto(resolve('/'));
+		}
+	} catch (error) {
+		toast({
+			title: 'Błąd usuwania',
+			description: getErrorMessage(error),
+			variant: 'error'
+		});
+	}
+}
+
 </script>
 
 <div class="min-h-screen bg-background text-foreground">
@@ -92,16 +124,21 @@
 					<nav class="space-y-1">
 						{#if data.projects?.length}
 							{#each data.projects as project (project.id)}
-								<a
-									href={resolve(`/${String(project.id)}`)}
+								<a 
+									href={resolve(`/${String(project.id)}`)} 
 									class={`block rounded-md px-3 py-2 text-sm transition ${
 										page.params.id === String(project.id)
 											? 'bg-primary/10 font-semibold text-primary'
 											: 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-									}`}
-								>
+									}`}>
 									{project.name}
-								</a>
+								<button
+										type="button"
+										class="ml-2 text-xs text-red-600 hover:underline"
+										onclick={(event) => handleDeleteProject(event, project.id, project.name)}>
+											Usuń
+								</button>
+							</a> 
 							{/each}
 						{:else}
 							<p class="px-3 py-2 text-sm text-muted-foreground">Brak dostępnych list zadań.</p>

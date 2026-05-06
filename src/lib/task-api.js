@@ -72,6 +72,12 @@ export function deleteTask(taskId) {
 	});
 }
 
+export function deleteProject(projectId) {
+	return apiRequest(`/projects/${projectId}`, {
+		method: 'DELETE'
+	});
+}
+
 export function createUser(payload) {
 	return apiRequest('/users', {
 		method: 'POST',

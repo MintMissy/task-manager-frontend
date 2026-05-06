@@ -13,7 +13,13 @@
 	import TaskFormModal from './_components/task-form-modal.svelte';
 	import TaskListView from './_components/task-list-view.svelte';
 	import { getErrorMessage } from '$lib/errors';
-	import { createTask, deleteTask, fetchDashboardData, updateTask } from '$lib/task-api';
+	import {
+		createTask,
+		deleteTask,
+		fetchDashboardData,
+		fetchProjectTasks,
+		updateTask
+	} from '$lib/task-api';
 	import { STATUS_OPTIONS } from '$lib/task-status';
 	import { toast } from '$lib/toast.svelte';
 	import { buildFilterSearch, filtersMatchUrl } from './dashboard-url';
@@ -65,9 +71,7 @@
 
 	let projectId = $derived(page.params.id);
 
-	let tasksForList = $derived.by(() =>
-		tasks.filter((task) => String(task.project_id ?? '') === projectId)
-	);
+	let tasksForList = $derived.by(() => tasks);
 
 	let filteredTasks = $derived.by(() => {
 		const query = searchQuery.trim().toLowerCase();
@@ -94,36 +98,37 @@
 	);
 
 	async function loadDashboard({ silent = false } = {}) {
-		if (silent) {
-			refreshing = true;
-		} else {
-			loading = true;
-			bootError = '';
-		}
-
-		try {
-			const dashboardData = await fetchDashboardData();
-
-			tasks = dashboardData.tasks;
-			users = dashboardData.users;
-			projects = dashboardData.projects;
-			bootError = '';
-		} catch (error) {
-			const message = getErrorMessage(error);
-			if (silent && tasksForList.length > 0) {
-				toast({
-					title: 'Odświeżanie nie powiodło się',
-					description: message,
-					variant: 'destructive'
-				});
-			} else {
-				bootError = message;
-			}
-		} finally {
-			loading = false;
-			refreshing = false;
-		}
+	if (silent) {
+		refreshing = true;
+	} else {
+		loading = true;
+		bootError = '';
 	}
+
+	try {
+		const dashboardData = await fetchDashboardData();
+		const projectTasks = await fetchProjectTasks(projectId);
+
+		tasks = projectTasks;
+		users = dashboardData.users;
+		projects = dashboardData.projects;
+		bootError = '';
+	} catch (error) {
+		const message = getErrorMessage(error);
+		if (silent && tasksForList.length > 0) {
+			toast({
+				title: 'Odświeżanie nie powiodło się',
+				description: message,
+				variant: 'destructive'
+			});
+		} else {
+			bootError = message;
+		}
+	} finally {
+		loading = false;
+		refreshing = false;
+	}
+}
 
 	function clearFilters() {
 		searchQuery = '';
@@ -156,7 +161,10 @@
 
 		try {
 			if (taskModalMode === 'create') {
-				await createTask(payload);
+				await createTask({
+				...payload,
+				project_id: Number(projectId)
+	});
 			} else {
 				await updateTask(activeTask.id, payload);
 			}
@@ -214,6 +222,13 @@
 			deletePending = false;
 		}
 	}
+
+	let taskStats = $derived.by(() => ({
+	total: tasksForList.length,
+	todo: tasksForList.filter((task) => task.status === 'todo').length,
+	inProgress: tasksForList.filter((task) => task.status === 'in_progress').length,
+	done: tasksForList.filter((task) => task.status === 'done').length
+}));
 </script>
 
 <svelte:head>
@@ -245,6 +260,42 @@
 />
 
 <div class="space-y-8 pb-12">
+	<section class="rounded-2xl border bg-card p-6 shadow-sm">
+		<p class="text-sm font-medium text-muted-foreground">Aktualna lista zadań</p>
+		<h1 class="mt-2 text-3xl font-semibold">{data.project.name}</h1>
+		<p class="mt-2 text-sm text-muted-foreground">
+			Zarządzaj zadaniami przypisanymi do tej listy.
+		</p>
+
+	 <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+	 <div class="rounded-xl border bg-card p-3 shadow-sm">
+	  <p class="text-xs text-muted-foreground">Wszystkie</p>
+	  <p class="text-2xl font-semibold">{taskStats.total}</p>
+   </div>
+ 
+	 <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 shadow-sm">
+	  <p class="text-xs text-slate-500">Do zrobienia</p>
+	  <p class="text-2xl font-semibold text-slate-700">
+		{taskStats.todo}
+	  </p>
+   </div>
+ 
+	 <div class="rounded-xl border border-amber-200 bg-amber-50 p-3 shadow-sm">
+	  <p class="text-xs text-amber-700">W toku</p>
+	  <p class="text-2xl font-semibold text-amber-800">
+	  	{taskStats.inProgress}
+	  </p>
+   </div>
+ 
+	 <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 shadow-sm">
+	  <p class="text-xs text-emerald-700">Zrobione</p>
+	  <p class="text-2xl font-semibold text-emerald-800">
+	  	{taskStats.done}
+	  </p>
+   </div>
+
+	</section>
+
 	<DashboardToolbar
 		{refreshing}
 		onRefresh={() => loadDashboard({ silent: true })}
@@ -265,7 +316,7 @@
 					{users}
 					filteredCount={filteredTasks.length}
 					totalCount={tasksForList.length}
-					hasActiveFilters={hasActiveFilters}
+					{hasActiveFilters}
 					onClearFilters={clearFilters}
 				/>
 

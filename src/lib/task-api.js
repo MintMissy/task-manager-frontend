@@ -5,6 +5,7 @@ const API_BASE_URL = (env.PUBLIC_API_BASE_URL || 'http://localhost:3000').replac
 function createErrorMessage(status, fallback) {
 	if (status === 400)
 		return 'Żądanie jest nieprawidłowe. Sprawdź formularz zadania i spróbuj ponownie.';
+	if (status === 403) return 'Nie masz uprawnień do wykonania tej operacji.';
 	if (status === 404) return 'Nie znaleziono żądanego zasobu.';
 	if (status === 409)
 		return 'Operacja nie powiodła się z powodu konfliktu danych (np. duplikat adresu e-mail).';
@@ -96,4 +97,8 @@ export function deleteUser(userId) {
 	return apiRequest(`/users/${userId}`, {
 		method: 'DELETE'
 	});
+}
+
+export function fetchProjectTasks(projectId) {
+	return apiRequest(`/projects/${projectId}/tasks`);
 }

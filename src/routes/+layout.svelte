@@ -10,7 +10,6 @@
 	import { toast } from '$lib/toast.svelte';
 	import { Plus } from '@lucide/svelte';
 	import './layout.css';
-	//import { createProject } from '$lib/task-api';
 	import { fetchDashboardData, createProject, deleteProject } from '$lib/task-api';
 
 	let { data, children } = $props();
@@ -136,7 +135,7 @@
 								{#if project.id > 3}
 									<button
 										type="button"
-										class="ml-2 text-xs text-red-500 opacity-60 hover:opacity-100 hover:underline"
+										class="text-red-500 hover:text-red-600"
 										onclick={(event) => handleDeleteProject(event, project.id, project.name)}>
 										Usuń
 									</button>

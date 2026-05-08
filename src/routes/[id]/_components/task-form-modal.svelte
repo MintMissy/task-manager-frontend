@@ -1,8 +1,11 @@
 <script>
 	import Button from '$lib/components/ui/button.svelte';
+	import LabelChip from '$lib/components/ui/label-chip.svelte';
 	import { syncModalOpen } from '$lib/dialog-sync';
+	import { getLabelColor } from '$lib/label-config';
 	import { STATUS_OPTIONS } from '$lib/task-status';
 	import { fieldClass } from '$lib/utils';
+	import * as LucideIcons from '@lucide/svelte';
 
 	function normalizeDateInput(value) {
 		if (!value) return '';
@@ -16,11 +19,13 @@
 		task = null,
 		users = [],
 		projects = [],
+		labels = [],
 		defaultProjectId = '',
 		submitting = false,
 		submitError = '',
 		onClose = () => {},
-		onSubmit = () => {}
+		onSubmit = () => {},
+		onToggleLabel = () => {}
 	} = $props();
 
 	const textareaClass = `${fieldClass} min-h-28 h-auto`;
@@ -33,7 +38,8 @@
 		assigned_user_id: currentTask?.assigned_user_id ? String(currentTask.assigned_user_id) : '',
 		project_id: currentTask?.project_id
 			? String(currentTask.project_id)
-			: String(defaultProjectId || '')
+			: String(defaultProjectId || ''),
+		estimated_hours: currentTask?.estimated_hours ?? 0
 	});
 
 	let form = $state(createInitialForm(null));
@@ -76,7 +82,8 @@
 				? Number(defaultProjectId)
 				: form.project_id
 					? Number(form.project_id)
-					: null
+					: null,
+			estimated_hours: Number(form.estimated_hours) || 0
 		});
 	}
 </script>
@@ -166,6 +173,40 @@
 				</div>
 			{/if}
 		</div>
+
+		<div class="space-y-2 pt-2 border-t border-border/70">
+			<h4 class="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Szacunki</h4>
+			<div class="grid gap-4 md:grid-cols-2">
+				<div class="space-y-2">
+					<label for="task-estimated" class="text-sm font-medium">Szacowany czas (h)</label>
+					<input id="task-estimated" class={fieldClass} type="number" step="0.5" min="0" bind:value={form.estimated_hours} />
+				</div>
+			</div>
+		</div>
+
+		{#if labels.length > 0}
+			<div class="space-y-2 pt-2 border-t border-border/70">
+				<h4 class="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Etykiety</h4>
+				<div class="flex flex-wrap gap-2">
+					{#each labels as label (label.id)}
+						{@const assigned = (task?.labels ?? []).some((l) => l.id === label.id)}
+						{@const colorMeta = getLabelColor(label.color)}
+						<button
+							type="button"
+							class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all {assigned ? colorMeta.bg + ' ' + colorMeta.text + ' ring-2 ring-offset-1 ' + colorMeta.ring : 'bg-muted/50 text-muted-foreground hover:bg-muted'}"
+							onclick={() => onToggleLabel(label)}
+							disabled={mode === 'create'}
+							title={mode === 'create' ? 'Etykiety można przypisywać po zapisaniu zadania' : ''}
+						>
+							{label.name}
+						</button>
+					{/each}
+				</div>
+				{#if mode === 'create'}
+					<p class="text-xs text-muted-foreground">Etykiety można przypisywać po zapisaniu zadania.</p>
+				{/if}
+			</div>
+		{/if}
 
 		{#if clientError || submitError}
 			<div

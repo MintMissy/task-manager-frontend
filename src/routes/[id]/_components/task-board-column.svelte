@@ -4,7 +4,7 @@
 	import { STATUS_META } from '$lib/task-status';
 	import TaskBoardCard from './task-board-card.svelte';
 
-	let { column, onEditTask = () => {}, onDeleteTask = () => {} } = $props();
+	let { column, onEditTask = () => {}, onDeleteTask = () => {}, onLogTimeTask = () => {} } = $props();
 
 	function zadaniaLabel(n) {
 		if (n === 1) return '1 zadanie';
@@ -37,7 +37,7 @@
 			</div>
 		{:else}
 			{#each column.tasks as task (task.id)}
-				<TaskBoardCard {task} {onEditTask} {onDeleteTask} />
+				<TaskBoardCard {task} {onEditTask} {onDeleteTask} {onLogTimeTask} />
 			{/each}
 		{/if}
 	</div>

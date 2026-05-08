@@ -10,10 +10,52 @@
 	import { toast } from '$lib/toast.svelte';
 	import { Plus } from '@lucide/svelte';
 	import './layout.css';
-	//import { createProject } from '$lib/task-api';
 	import { fetchDashboardData, createProject, deleteProject } from '$lib/task-api';
+	import { formatDisplayDate, isTaskOverdue } from '$lib/task-dates';
 
 	let { data, children } = $props();
+
+	let notifShown = false;
+	$effect(() => {
+		if (notifShown) return;
+		const allTasks = data.tasks ?? [];
+		if (allTasks.length === 0) return;
+		notifShown = true;
+
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+		const dayAfter = new Date(today);
+		dayAfter.setDate(dayAfter.getDate() + 2);
+
+		const activeTasks = allTasks.filter((t) => t.status !== 'done' && t.due_date);
+		const overdue = activeTasks.filter((t) => isTaskOverdue(t));
+		const dueSoon = activeTasks.filter((t) => {
+			const d = new Date(String(t.due_date).slice(0, 10) + 'T12:00:00');
+			return d >= today && d < dayAfter;
+		});
+
+		if (overdue.length > 0) {
+			const titles = overdue.slice(0, 2).map((t) => '"' + t.title + '"').join(', ');
+			const extra = overdue.length > 2 ? ` i ${overdue.length - 2} więcej` : '';
+			toast({
+				title: overdue.length === 1 ? 'Zadanie po terminie' : `${overdue.length} zadania po terminie`,
+				description: titles + extra,
+				variant: 'destructive',
+				duration: 6000
+			});
+		}
+
+		if (dueSoon.length > 0) {
+			const titles = dueSoon.slice(0, 2).map((t) => '"' + t.title + '" (' + formatDisplayDate(t.due_date) + ')').join(', ');
+			const extra = dueSoon.length > 2 ? ` i ${dueSoon.length - 2} więcej` : '';
+			toast({
+				title: 'Termin się zbliża',
+				description: titles + extra,
+				variant: 'default',
+				duration: 6000
+			});
+		}
+	});
 
 	let addListOpen = $state(false);
 	let newListName = $state('');
@@ -112,6 +154,26 @@
 							}`}
 						>
 							Użytkownicy
+						</a>
+						<a
+							href={resolve('/etykiety')}
+							class={`block rounded-md px-3 py-2 text-sm transition ${
+								page.route.id === '/etykiety'
+									? 'bg-primary/10 font-semibold text-primary'
+									: 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+							}`}
+						>
+							Etykiety
+						</a>
+						<a
+							href={resolve('/statystyki')}
+							class={`block rounded-md px-3 py-2 text-sm transition ${
+								page.route.id === '/statystyki'
+									? 'bg-primary/10 font-semibold text-primary'
+									: 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+							}`}
+						>
+							Statystyki
 						</a>
 						<hr />
 						<a

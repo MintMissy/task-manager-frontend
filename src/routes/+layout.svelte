@@ -140,8 +140,8 @@
 </script>
 
 <div class="min-h-screen bg-background text-foreground">
-	<div class="mx-auto flex w-full max-w-368 gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-		<aside class="w-full shrink-0 lg:w-72">
+	<div class="mx-auto flex flex-col lg:flex-row w-full max-w-368 gap-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+		<aside class="w-full lg:w-72 shrink-0">
 			<Card class="p-4">
 				<div class="space-y-4">
 					<div class="space-y-1">
@@ -194,12 +194,15 @@
 											: 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
 									}`}>
 									{project.name}
-								<button
+									
+								{#if project.id > 3}
+									<button
 										type="button"
-										class="ml-2 text-xs text-red-600 hover:underline"
+										class="text-red-500 hover:text-red-600"
 										onclick={(event) => handleDeleteProject(event, project.id, project.name)}>
-											Usuń
-								</button>
+										Usuń
+									</button>
+								{/if}
 							</a> 
 							{/each}
 						{:else}
@@ -213,7 +216,7 @@
 				</div>
 			</Card>
 		</aside>
-		<main class="min-w-0 flex-1">
+		<main class="min-w-0 flex-1 overflow-hidden">
 			{@render children()}
 		</main>
 	</div>

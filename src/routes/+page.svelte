@@ -1,43 +1,34 @@
 <script>
-	import { resolve } from '$app/paths';
-	import Card from '$lib/components/ui/card.svelte';
-
 	let { data } = $props();
 </script>
 
-<svelte:head>
-	<title>Wybierz listę zadań</title>
-	<meta
-		name="description"
-		content="Wybierz listę zadań z paska bocznego lub z poniższych kart, aby otworzyć panel."
-	/>
-</svelte:head>
-
 <section class="space-y-6">
 	<div>
-		<h1 class="mt-2 text-3xl font-semibold">Wybierz listę zadań</h1>
-		<p class="mt-3 text-sm text-muted-foreground">
-			Wybierz listę z paska bocznego lub jedną z poniższych kart, aby otworzyć panel zadań.
-		</p>
+		<p class="text-sm text-muted-foreground">Lista zadań</p>
+		<h1 class="mt-2 text-3xl font-semibold">
+			{data.project?.name ?? 'Nieznana lista'}
+		</h1>
 	</div>
 
-	{#if data.projects?.length}
-		<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-			{#each data.projects as project (project.id)}
-				<a href={resolve('/[id]', { id: String(project.id) })} class="block">
-					<Card class="h-full p-5 transition hover:border-primary/40 hover:bg-primary/5">
-						<p class="text-sm text-muted-foreground">Lista zadań</p>
-						<h2 class="mt-2 text-lg font-semibold">{project.name}</h2>
-					</Card>
-				</a>
+	{#if data.tasks?.length}
+		<div class="space-y-3">
+			{#each data.tasks as task (task.id)}
+				<div class="rounded-xl border bg-card p-4 shadow-sm">
+					<h2 class="font-semibold">{task.title}</h2>
+
+					{#if task.description}
+						<p class="mt-1 text-sm text-muted-foreground">{task.description}</p>
+					{/if}
+
+					<p class="mt-2 text-xs text-muted-foreground">
+						Status: {task.status}
+					</p>
+				</div>
 			{/each}
 		</div>
 	{:else}
-		<Card class="p-6">
-			<h2 class="text-xl font-semibold">Brak list zadań</h2>
-			<p class="mt-2 text-sm text-muted-foreground">
-				Backend nie zwrócił żadnych projektów, więc nie ma jeszcze list zadań do wyświetlenia.
-			</p>
-		</Card>
+		<div class="rounded-xl border bg-card p-6 text-sm text-muted-foreground">
+			Brak zadań w tej liście.
+		</div>
 	{/if}
 </section>

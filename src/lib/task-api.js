@@ -5,11 +5,11 @@ const API_BASE_URL = (env.PUBLIC_API_BASE_URL || 'http://localhost:3000').replac
 function createErrorMessage(status, fallback) {
 	if (status === 400)
 		return 'Żądanie jest nieprawidłowe. Sprawdź formularz zadania i spróbuj ponownie.';
+	if (status === 403) return 'Nie masz uprawnień do wykonania tej operacji.';
 	if (status === 404) return 'Nie znaleziono żądanego zasobu.';
 	if (status === 409)
 		return 'Operacja nie powiodła się z powodu konfliktu danych (np. duplikat adresu e-mail).';
-	if (status >= 500)
-		return 'Serwer jest chwilowo niedostępny. Spróbuj ponownie za chwilę.';
+	if (status >= 500) return 'Serwer jest chwilowo niedostępny. Spróbuj ponownie za chwilę.';
 
 	return fallback;
 }
@@ -143,4 +143,8 @@ export function addLabelToTask(taskId, labelId) {
 
 export function removeLabelFromTask(taskId, labelId) {
 	return apiRequest(`/tasks/${taskId}/labels/${labelId}`, { method: 'DELETE' });
+}
+
+export function fetchProjectTasks(projectId) {
+	return apiRequest(`/projects/${projectId}/tasks`);
 }

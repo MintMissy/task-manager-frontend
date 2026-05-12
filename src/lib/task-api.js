@@ -9,8 +9,7 @@ function createErrorMessage(status, fallback) {
 	if (status === 404) return 'Nie znaleziono żądanego zasobu.';
 	if (status === 409)
 		return 'Operacja nie powiodła się z powodu konfliktu danych (np. duplikat adresu e-mail).';
-	if (status >= 500)
-		return 'Serwer jest chwilowo niedostępny. Spróbuj ponownie za chwilę.';
+	if (status >= 500) return 'Serwer jest chwilowo niedostępny. Spróbuj ponownie za chwilę.';
 
 	return fallback;
 }
@@ -41,9 +40,12 @@ async function apiRequest(path, options = {}) {
 }
 
 export function fetchDashboardData() {
-	return Promise.all([apiRequest('/tasks'), apiRequest('/users'), apiRequest('/projects')]).then(
-		([tasks, users, projects]) => ({ tasks, users, projects })
-	);
+	return Promise.all([
+		apiRequest('/tasks'),
+		apiRequest('/users'),
+		apiRequest('/projects'),
+		apiRequest('/labels')
+	]).then(([tasks, users, projects, labels]) => ({ tasks, users, projects, labels }));
 }
 
 export function createProject(payload) {
@@ -97,6 +99,50 @@ export function deleteUser(userId) {
 	return apiRequest(`/users/${userId}`, {
 		method: 'DELETE'
 	});
+}
+
+export function fetchTimeLogs(taskId) {
+	return apiRequest(`/tasks/${taskId}/time-logs`);
+}
+
+export function createTimeLog(taskId, payload) {
+	return apiRequest(`/tasks/${taskId}/time-logs`, {
+		method: 'POST',
+		body: JSON.stringify(payload)
+	});
+}
+
+export function deleteTimeLog(logId) {
+	return apiRequest(`/time-logs/${logId}`, {
+		method: 'DELETE'
+	});
+}
+
+export function fetchLabels() {
+	return apiRequest('/labels');
+}
+
+export function createLabel(payload) {
+	return apiRequest('/labels', { method: 'POST', body: JSON.stringify(payload) });
+}
+
+export function updateLabel(labelId, payload) {
+	return apiRequest(`/labels/${labelId}`, { method: 'PUT', body: JSON.stringify(payload) });
+}
+
+export function deleteLabel(labelId) {
+	return apiRequest(`/labels/${labelId}`, { method: 'DELETE' });
+}
+
+export function addLabelToTask(taskId, labelId) {
+	return apiRequest(`/tasks/${taskId}/labels`, {
+		method: 'POST',
+		body: JSON.stringify({ label_id: labelId })
+	});
+}
+
+export function removeLabelFromTask(taskId, labelId) {
+	return apiRequest(`/tasks/${taskId}/labels/${labelId}`, { method: 'DELETE' });
 }
 
 export function fetchProjectTasks(projectId) {

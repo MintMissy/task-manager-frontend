@@ -4,10 +4,11 @@
 	import { CheckCircle2, CircleAlert, Info, X } from '@lucide/svelte';
 
 	const toneClasses = {
-		default: 'border-border/70 bg-card text-card-foreground',
+		default: 'border-border bg-card/95 text-card-foreground shadow-2xl',
 		success:
-			'border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-50',
-		destructive: 'border-destructive/20 bg-destructive/10 text-foreground'
+			'border-emerald-500/30 bg-emerald-50 text-emerald-950 dark:bg-emerald-500/15 dark:text-emerald-50 shadow-emerald-500/10',
+		destructive:
+			'border-destructive/30 bg-red-50 text-red-900 dark:bg-destructive/15 dark:text-red-100 shadow-destructive/10'
 	};
 
 	const iconMap = {
@@ -37,7 +38,7 @@
 					<p class="text-sm font-semibold">{item.title}</p>
 
 					{#if item.description}
-						<p class="mt-1 text-sm text-muted-foreground">{item.description}</p>
+						<p class="mt-1 text-sm opacity-90">{item.description}</p>
 					{/if}
 				</div>
 

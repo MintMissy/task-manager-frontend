@@ -1,19 +1,30 @@
 <script>
 	import Button from '$lib/components/ui/button.svelte';
 	import Card from '$lib/components/ui/card.svelte';
+	import { getLabelColor } from '$lib/label-config';
 	import { fieldClass } from '$lib/utils';
 	import { Columns3, LayoutList, Search } from '@lucide/svelte';
 
 	let {
 		searchQuery = $bindable(''),
 		assigneeFilter = $bindable('all'),
+		labelFilter = $bindable([]),
 		viewMode = $bindable('list'),
 		users = [],
+		labels = [],
 		filteredCount = 0,
 		totalCount = 0,
 		hasActiveFilters = false,
 		onClearFilters = () => {}
 	} = $props();
+
+	function toggleLabelFilter(labelId) {
+		if (labelFilter.includes(labelId)) {
+			labelFilter = labelFilter.filter((id) => id !== labelId);
+		} else {
+			labelFilter = [...labelFilter, labelId];
+		}
+	}
 </script>
 
 <Card class="p-5">
@@ -67,6 +78,24 @@
 				</select>
 			</label>
 		</div>
+
+		{#if labels.length > 0}
+			<div class="space-y-2">
+				<span class="text-sm font-medium">Etykiety</span>
+				<div class="flex flex-wrap gap-2">
+					{#each labels as label (label.id)}
+						{@const active = labelFilter.includes(label.id)}
+						{@const colorMeta = getLabelColor(label.color)}
+						<button
+							class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition-all {active ? colorMeta.bg + ' ' + colorMeta.text : 'bg-muted/50 text-muted-foreground hover:bg-muted'}"
+							onclick={() => toggleLabelFilter(label.id)}
+						>
+							{label.name}
+						</button>
+					{/each}
+				</div>
+			</div>
+		{/if}
 
 		<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 			<p class="text-sm text-muted-foreground">

@@ -406,7 +406,7 @@
 	onConfirm={handleDeleteTask}
 />
 
-<div class="space-y-8 pb-12">
+<div class="min-w-0 space-y-8 pb-12">
 	<section class="rounded-2xl border bg-card p-6 shadow-sm">
 		<p class="text-sm font-medium text-muted-foreground">Aktualna lista zadań</p>
 		<h1 class="mt-2 text-3xl font-semibold">{data.project.name}</h1>
@@ -452,8 +452,8 @@
 	{:else if bootError}
 		<DashboardError message={bootError} onRetry={() => loadDashboard()} />
 	{:else}
-		<section class="grid gap-6">
-			<div class="space-y-6">
+		<section class="grid min-w-0 gap-6">
+			<div class="min-w-0 space-y-6">
 				<TaskFiltersPanel
 					bind:searchQuery
 					bind:assigneeFilter

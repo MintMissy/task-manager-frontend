@@ -1,8 +1,8 @@
 <script>
 	import Button from '$lib/components/ui/button.svelte';
 	import Card from '$lib/components/ui/card.svelte';
-	import { getLabelColor } from '$lib/label-config';
-	import { fieldClass } from '$lib/utils';
+	import { getLabelColor } from '$lib/labels/labels-config';
+	import { fieldClass } from '$lib/ui/utils';
 	import { Columns3, LayoutList, Search } from '@lucide/svelte';
 
 	let {

@@ -1,10 +1,10 @@
 <script>
 	import Button from '$lib/components/ui/button.svelte';
-	import { syncModalOpen } from '$lib/dialog-sync';
-	import { fieldClass } from '$lib/utils';
-	import { fetchTimeLogs, createTimeLog, deleteTimeLog } from '$lib/task-api';
-	import { getErrorMessage } from '$lib/errors';
-	import { toast } from '$lib/toast.svelte';
+	import { syncModalOpen } from '$lib/ui/dialog-sync';
+	import { fieldClass } from '$lib/ui/utils';
+	import { fetchTimeLogs, createTimeLog, deleteTimeLog } from '$lib/time-logs/time-logs-api';
+	import { getErrorMessage } from '$lib/core/errors';
+	import { toast } from '$lib/ui/toast.svelte';
 	import { Trash2 } from '@lucide/svelte';
 
 	let {

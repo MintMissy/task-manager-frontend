@@ -1,6 +1,6 @@
 <script>
 	import Card from '$lib/components/ui/card.svelte';
-	import { STATUS_META } from '$lib/task-status';
+	import { STATUS_META } from '$lib/tasks/tasks-status';
 	import { ChevronUp, ChevronDown, ChevronsUpDown } from '@lucide/svelte';
 	import TaskListRow from './task-list-row.svelte';
 

@@ -1,6 +1,6 @@
 <script>
 	import Button from '$lib/components/ui/button.svelte';
-	import { dismissToast, toastStore } from '$lib/toast.svelte';
+	import { dismissToast, toastStore } from '$lib/ui/toast.svelte';
 	import { CheckCircle2, CircleAlert, Info, X } from '@lucide/svelte';
 
 	const toneClasses = {

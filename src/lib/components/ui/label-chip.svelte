@@ -1,5 +1,5 @@
 <script>
-	import { getLabelColor } from '$lib/label-config';
+	import { getLabelColor } from '$lib/labels/labels-config';
 	import * as LucideIcons from '@lucide/svelte';
 
 	let { label, size = 'sm' } = $props();

@@ -1,6 +1,6 @@
 <script>
 	import Button from '$lib/components/ui/button.svelte';
-	import { STATUS_OPTIONS } from '$lib/task-status';
+	import { STATUS_OPTIONS } from '$lib/tasks/tasks-status';
 	import { CheckSquare } from '@lucide/svelte';
 
 	let {

@@ -2,7 +2,7 @@
 	import Badge from '$lib/components/ui/badge.svelte';
 	import Button from '$lib/components/ui/button.svelte';
 	import LabelChip from '$lib/components/ui/label-chip.svelte';
-	import { formatDisplayDate, isTaskOverdue } from '$lib/task-dates';
+	import { formatDisplayDate, isTaskOverdue } from '$lib/tasks/tasks-dates';
 	import { SquarePen, Trash2, Clock } from '@lucide/svelte';
 
 	let { task, onEditTask = () => {}, onDeleteTask = () => {}, onLogTimeTask = () => {} } = $props();

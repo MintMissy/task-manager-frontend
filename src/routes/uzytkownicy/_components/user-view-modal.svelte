@@ -1,7 +1,7 @@
 <script>
 	import Button from '$lib/components/ui/button.svelte';
-	import { syncModalOpen } from '$lib/dialog-sync';
-	import { formatDateTimePl } from '$lib/format-datetime';
+	import { syncModalOpen } from '$lib/ui/dialog-sync';
+	import { formatDateTimePl } from '$lib/core/format-datetime';
 
 	let { open = false, user = null, onClose = () => {} } = $props();
 	let dialogEl = $state();

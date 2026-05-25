@@ -1,5 +1,5 @@
 <script>
-	import { cn } from '$lib/utils';
+	import { cn } from '$lib/ui/utils';
 
 	const variants = {
 		default: 'bg-primary/10 text-primary',

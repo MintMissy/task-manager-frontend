@@ -1,5 +1,5 @@
 <script>
-	import { cn } from '$lib/utils';
+	import { cn } from '$lib/ui/utils';
 
 	const variants = {
 		default: 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90',

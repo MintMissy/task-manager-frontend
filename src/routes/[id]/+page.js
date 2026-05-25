@@ -1,5 +1,6 @@
 import { error } from '@sveltejs/kit';
-import { fetchDashboardData, fetchProjectTasks } from '$lib/task-api';
+import { fetchDashboardData } from '$lib/tasks/tasks-api';
+import { fetchProjectTasks } from '$lib/projects/projects-api';
 
 export async function load({ params, url }) {
 	const dashboard = await fetchDashboardData();

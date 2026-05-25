@@ -1,11 +1,9 @@
 <script>
 	import Button from '$lib/components/ui/button.svelte';
-	import LabelChip from '$lib/components/ui/label-chip.svelte';
-	import { syncModalOpen } from '$lib/dialog-sync';
-	import { getLabelColor } from '$lib/label-config';
-	import { STATUS_OPTIONS } from '$lib/task-status';
-	import { fieldClass } from '$lib/utils';
-	import * as LucideIcons from '@lucide/svelte';
+	import { syncModalOpen } from '$lib/ui/dialog-sync';
+	import { getLabelColor } from '$lib/labels/labels-config';
+	import { STATUS_OPTIONS } from '$lib/tasks/tasks-status';
+	import { fieldClass } from '$lib/ui/utils';
 
 	function normalizeDateInput(value) {
 		if (!value) return '';
@@ -39,7 +37,8 @@
 		project_id: currentTask?.project_id
 			? String(currentTask.project_id)
 			: String(defaultProjectId || ''),
-		estimated_hours: currentTask?.estimated_hours ?? 0
+		estimated_hours: currentTask?.estimated_hours ?? 0,
+		labelIds: []
 	});
 
 	let form = $state(createInitialForm(null));
@@ -83,7 +82,8 @@
 				: form.project_id
 					? Number(form.project_id)
 					: null,
-			estimated_hours: Number(form.estimated_hours) || 0
+			estimated_hours: Number(form.estimated_hours) || 0,
+			labelIds: form.labelIds
 		});
 	}
 </script>
@@ -189,22 +189,27 @@
 				<h4 class="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Etykiety</h4>
 				<div class="flex flex-wrap gap-2">
 					{#each labels as label (label.id)}
-						{@const assigned = (task?.labels ?? []).some((l) => l.id === label.id)}
+						{@const assigned = mode === 'create' ? form.labelIds.includes(label.id) : (task?.labels ?? []).some((l) => l.id === label.id)}
 						{@const colorMeta = getLabelColor(label.color)}
 						<button
 							type="button"
 							class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all {assigned ? colorMeta.bg + ' ' + colorMeta.text + ' ring-2 ring-offset-1 ' + colorMeta.ring : 'bg-muted/50 text-muted-foreground hover:bg-muted'}"
-							onclick={() => onToggleLabel(label)}
-							disabled={mode === 'create'}
-							title={mode === 'create' ? 'Etykiety można przypisywać po zapisaniu zadania' : ''}
+							onclick={() => {
+								if (mode === 'create') {
+									if (form.labelIds.includes(label.id)) {
+										form.labelIds = form.labelIds.filter(id => id !== label.id);
+									} else {
+										form.labelIds = [...form.labelIds, label.id];
+									}
+								} else {
+									onToggleLabel(label);
+								}
+							}}
 						>
 							{label.name}
 						</button>
 					{/each}
 				</div>
-				{#if mode === 'create'}
-					<p class="text-xs text-muted-foreground">Etykiety można przypisywać po zapisaniu zadania.</p>
-				{/if}
 			</div>
 		{/if}
 

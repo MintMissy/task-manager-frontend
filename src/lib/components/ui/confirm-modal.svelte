@@ -1,6 +1,6 @@
 <script>
 	import Button from '$lib/components/ui/button.svelte';
-	import { syncModalOpen } from '$lib/dialog-sync';
+	import { syncModalOpen } from '$lib/ui/dialog-sync';
 
 	let {
 		open = false,

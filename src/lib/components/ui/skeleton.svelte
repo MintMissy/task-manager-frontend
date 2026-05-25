@@ -1,5 +1,5 @@
 <script>
-	import { cn } from '$lib/utils';
+	import { cn } from '$lib/ui/utils';
 
 	let { class: className = '', ...restProps } = $props();
 </script>

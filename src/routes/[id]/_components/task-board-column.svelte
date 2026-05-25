@@ -1,7 +1,7 @@
 <script>
 	import Badge from '$lib/components/ui/badge.svelte';
 	import Card from '$lib/components/ui/card.svelte';
-	import { STATUS_META } from '$lib/task-status';
+	import { STATUS_META } from '$lib/tasks/tasks-status';
 	import TaskBoardCard from './task-board-card.svelte';
 
 	let { column, onEditTask = () => {}, onDeleteTask = () => {}, onLogTimeTask = () => {} } = $props();

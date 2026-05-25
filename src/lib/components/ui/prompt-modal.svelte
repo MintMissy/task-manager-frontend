@@ -1,7 +1,7 @@
 <script>
 	import Button from '$lib/components/ui/button.svelte';
-	import { syncModalOpen } from '$lib/dialog-sync';
-	import { fieldClass } from '$lib/utils';
+	import { syncModalOpen } from '$lib/ui/dialog-sync';
+	import { fieldClass } from '$lib/ui/utils';
 
 	let {
 		open = false,
